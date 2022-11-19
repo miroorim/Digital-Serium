@@ -12,9 +12,10 @@ screen = utils.Screen(w, h)
 
 while True:
     success, img = cap.read()
-    
+
     pose_landmarks, img = pose.findPose(img, draw=screen.buttons[0].state)
     screen.draw(img, pose_landmarks)
 
+    img = cv2.resize(img, (w*2, h*2))
     cv2.imshow("Image", img)
     cv2.waitKey(1)

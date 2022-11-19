@@ -53,8 +53,6 @@ L_position_inv = [
 ]
 
 
-
-
 def right_hand_center(pose_landmarks):
     x = 0
     y = 0
@@ -143,13 +141,12 @@ def is_in_position(pose_landmarks, position):
         x = src_joint.x - dst_joint.x
         y = src_joint.y - dst_joint.y
         angle = math.atan2(y, x) % math.pi
-        
+
         # check if the angle is in the target angle
         if abs(angle - target_angle) < 0.1 or abs(angle - target_angle) > math.pi - 0.1:
             in_position[i] = True
         else:
             return False
-
 
     return all(in_position)
 
@@ -162,8 +159,10 @@ def is_arm_aligned(pose_landmarks):
     landmarks = list(enumerate(pose_landmarks.landmark))
     landmarks_ids = [i[0] for i in landmarks]
 
-    src_joints = [mpLamdmark.LEFT_WRIST, mpLamdmark.LEFT_ELBOW, mpLamdmark.LEFT_SHOULDER, mpLamdmark.LEFT_SHOULDER]
-    dst_joints = [mpLamdmark.RIGHT_WRIST, mpLamdmark.RIGHT_ELBOW, mpLamdmark.RIGHT_SHOULDER, mpLamdmark.LEFT_WRIST]
+    src_joints = [mpLamdmark.LEFT_WRIST, mpLamdmark.LEFT_ELBOW,
+                  mpLamdmark.LEFT_SHOULDER, mpLamdmark.LEFT_SHOULDER]
+    dst_joints = [mpLamdmark.RIGHT_WRIST, mpLamdmark.RIGHT_ELBOW,
+                  mpLamdmark.RIGHT_SHOULDER, mpLamdmark.LEFT_WRIST]
 
     prev_angle = None
     for src_joint, dst_joint in zip(src_joints, dst_joints):
@@ -188,7 +187,7 @@ def is_arm_aligned(pose_landmarks):
             prev_angle = angle
 
     return True
-    
+
 
 class Screen:
     def __init__(self, width, height):
@@ -196,7 +195,8 @@ class Screen:
         self.height = height
 
         self.buttons = [
-            Button(width-200, 0, 100, 125, "Etirements", icon_path="icons/hand.png"),
+            Button(width-200, 0, 100, 125, "Etirements",
+                   icon_path="icons/hand.png"),
             # Button(width-100, 125, 100, 125, "Cervicales",
             #        icon_path="icons/hand.png"),
         ]
@@ -223,8 +223,7 @@ class Screen:
         if self.buttons[0].state:
             for id, lm in enumerate(pose_landmarks.landmark):
                 cv2.circle(img, (int((1 - lm.x) * self.width), int(lm.y * self.height)),
-                            5, self.joint_color, cv2.FILLED)
-
+                           5, self.joint_color, cv2.FILLED)
 
         hx_min, hx_max, hy_min, hy_max = head_bounds(pose_landmarks)
         hx_min = int((1 - hx_min) * self.width)
