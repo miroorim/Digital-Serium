@@ -181,7 +181,7 @@ def is_arm_aligned(pose_landmarks):
             angle = math.pi - angle
 
         if prev_angle is not None:
-            if abs(angle - prev_angle) > 0.1:
+            if abs(angle - prev_angle) > 0.15:
                 return False
         else:
             prev_angle = angle
@@ -197,7 +197,7 @@ class Screen:
         self.buttons = [
             Button(width-200, 0, 100, 125, "Etirements",
                    icon_path="icons/hand.png"),
-            # Button(width-100, 125, 100, 125, "Cervicales",
+            # Button(width-400, 0, 100, 125, "Analyse",
             #        icon_path="icons/hand.png"),
         ]
 
@@ -223,7 +223,7 @@ class Screen:
         if self.buttons[0].state:
             for id, lm in enumerate(pose_landmarks.landmark):
                 cv2.circle(img, (int((1 - lm.x) * self.width), int(lm.y * self.height)),
-                           5, self.joint_color, cv2.FILLED)
+                            5, self.joint_color, cv2.FILLED)
 
         hx_min, hx_max, hy_min, hy_max = head_bounds(pose_landmarks)
         hx_min = int((1 - hx_min) * self.width)
@@ -234,7 +234,7 @@ class Screen:
         # draw head bounds
         if not self.buttons[0].state:
             cv2.rectangle(img, (hx_min, hy_min),
-                          (hx_max, hy_max), self.head_color, 2)
+                        (hx_max, hy_max), self.head_color, 2)
 
         rx, ry = right_hand_center(pose_landmarks)
         rx = int((1 - rx) * self.width)
