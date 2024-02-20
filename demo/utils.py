@@ -52,6 +52,14 @@ L_position_inv = [
     (mpLamdmark.LEFT_ELBOW, mpLamdmark.LEFT_WRIST, math.pi/2),
 ]
 
+arms_up_position = [
+    (mpLamdmark.LEFT_SHOULDER, mpLamdmark.LEFT_ELBOW, 0),
+    (mpLamdmark.LEFT_ELBOW, mpLamdmark.LEFT_WRIST, 0),
+    (mpLamdmark.RIGHT_SHOULDER, mpLamdmark.RIGHT_ELBOW, 0),
+    (mpLamdmark.RIGHT_ELBOW, mpLamdmark.RIGHT_WRIST, 0),
+]
+
+
 
 def right_hand_center(pose_landmarks):
     x = 0
@@ -188,6 +196,38 @@ def is_arm_aligned(pose_landmarks):
 
     return True
 
+def is_arm_up(pose_landmarks):
+    """
+    check if the arms are up
+    """
+    landmarks = list(enumerate(pose_landmarks.landmark))
+    landmarks_ids = [i[0] for i in landmarks]
+
+    src_joints = [mpLamdmark.LEFT_SHOULDER, mpLamdmark.LEFT_ELBOW,
+                    mpLamdmark.LEFT_WRIST]
+    dst_joints = [mpLamdmark.RIGHT_SHOULDER, mpLamdmark.RIGHT_ELBOW,
+                    mpLamdmark.RIGHT_WRIST]
+    
+    prev_angle = None
+    for src_joint, dst_joint in zip(src_joints, dst_joints):
+        src_idx = landmarks_ids.index(src_joint)
+        dst_idx = landmarks_ids.index(dst_joint)
+
+        src_joint = landmarks[src_idx][1]
+        dst_joint = landmarks[dst_idx][1]
+
+        x = src_joint.x - dst_joint.x
+        y = src_joint.y - dst_joint.y
+        angle = math.atan2(x, y) % math.pi
+        
+        if prev_angle is not None: 
+            if abs(angle - prev_angle) > 0.15:
+                return False
+        else :
+            prev_angle = angle
+
+    return True
+
 
 class Screen:
     def __init__(self, width, height):
@@ -214,11 +254,16 @@ class Screen:
         # in_pos = is_in_position(pose_landmarks, T_position)
         # in_pos = is_in_position(pose_landmarks, L_position) or in_pos
         # in_pos = is_in_position(pose_landmarks, L_position_inv) or in_pos
-        in_pos = is_arm_aligned(pose_landmarks)
-        if in_pos:
+        in_pos_T = is_arm_aligned(pose_landmarks)
+        in_pos_UP = is_arm_up(pose_landmarks)
+        if in_pos_T:
             self.joint_color = (0, 255, 0)
         else:
-            self.joint_color = (0, 0, 255)
+            if in_pos_UP:
+                self.joint_color = (0, 255, 0)
+            else:
+                self.joint_color = (0, 0, 255)
+
 
         if self.buttons[0].state:
             for id, lm in enumerate(pose_landmarks.landmark):
@@ -298,7 +343,7 @@ class Button:
 
             if time.time() - self.lastclick > 2.0:
                 self.color = (0, 255, 0)
-                self.timecount += 1/20
+                self.timecount += 1/10
             else:
                 self.color = (255, 0, 0)
 
