@@ -57,6 +57,9 @@ arms_up_position = [
     (mpLamdmark.LEFT_ELBOW, mpLamdmark.LEFT_WRIST, 0),
     (mpLamdmark.RIGHT_SHOULDER, mpLamdmark.RIGHT_ELBOW, 0),
     (mpLamdmark.RIGHT_ELBOW, mpLamdmark.RIGHT_WRIST, 0),
+    (mpLamdmark.RIGHT_ELBOW, mpLamdmark.RIGHT_ELBOW, 0),
+    (mpLamdmark.LEFT_WRIST, mpLamdmark.RIGHT_WRIST, 0),
+
 ]
 
 
@@ -221,7 +224,7 @@ def is_arm_up(pose_landmarks):
         angle = math.atan2(x, y) % math.pi
         
         if prev_angle is not None: 
-            if abs(angle - prev_angle) > 0.15:
+            if abs(angle - prev_angle) > 0.1:
                 return False
         else :
             prev_angle = angle
@@ -256,14 +259,10 @@ class Screen:
         # in_pos = is_in_position(pose_landmarks, L_position_inv) or in_pos
         in_pos_T = is_arm_aligned(pose_landmarks)
         in_pos_UP = is_arm_up(pose_landmarks)
-        if in_pos_T:
+        if in_pos_T or in_pos_UP:
             self.joint_color = (0, 255, 0)
         else:
-            if in_pos_UP:
-                self.joint_color = (0, 255, 0)
-            else:
-                self.joint_color = (0, 0, 255)
-
+            self.joint_color = (0, 0, 255)
 
         if self.buttons[0].state:
             for id, lm in enumerate(pose_landmarks.landmark):
